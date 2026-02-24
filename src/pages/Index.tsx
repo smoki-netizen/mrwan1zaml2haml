@@ -1,43 +1,61 @@
 import { useState, useEffect } from "react";
-import { Heart } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 
-const TOTAL_EPISODES = 45;
-const SEASON = "c0";
+const SEASONS = Array.from({ length: 11 }, (_, i) => ({
+  id: i,
+  label: `الموسم ${i}`,
+  code: `c${i}`,
+  episodes: 45,
+}));
 
-function getVideoUrl(episode: number) {
-  return `https://ccdko80.com/videos/${SEASON}/EP${episode}.mp4`;
+function getVideoUrl(seasonCode: string, episode: number) {
+  return `https://ccdko80.com/videos/${seasonCode}/EP${episode}.mp4`;
 }
 
-function getFavorites(): number[] {
+function getFavorites(): Record<string, number[]> {
   try {
-    return JSON.parse(localStorage.getItem("conan-favorites") || "[]");
+    return JSON.parse(localStorage.getItem("conan-favorites-v2") || "{}");
   } catch {
-    return [];
+    return {};
   }
 }
 
-function saveFavorites(favs: number[]) {
-  localStorage.setItem("conan-favorites", JSON.stringify(favs));
+function saveFavorites(favs: Record<string, number[]>) {
+  localStorage.setItem("conan-favorites-v2", JSON.stringify(favs));
 }
 
 const Index = () => {
+  const [currentSeason, setCurrentSeason] = useState(0);
   const [currentEp, setCurrentEp] = useState(1);
-  const [favorites, setFavorites] = useState<number[]>(getFavorites);
+  const [favorites, setFavorites] = useState<Record<string, number[]>>(getFavorites);
+
+  const season = SEASONS[currentSeason];
+  const seasonFavs = favorites[season.code] || [];
 
   useEffect(() => {
     saveFavorites(favorites);
   }, [favorites]);
 
   const toggleFav = (ep: number) => {
-    setFavorites((prev) =>
-      prev.includes(ep) ? prev.filter((e) => e !== ep) : [...prev, ep]
-    );
+    setFavorites((prev) => {
+      const key = season.code;
+      const list = prev[key] || [];
+      return {
+        ...prev,
+        [key]: list.includes(ep) ? list.filter((e) => e !== ep) : [...list, ep],
+      };
+    });
   };
 
   const handleEnded = () => {
-    if (currentEp < TOTAL_EPISODES) {
+    if (currentEp < season.episodes) {
       setCurrentEp((prev) => prev + 1);
     }
+  };
+
+  const selectSeason = (idx: number) => {
+    setCurrentSeason(idx);
+    setCurrentEp(1);
   };
 
   return (
@@ -49,22 +67,42 @@ const Index = () => {
             🔍 المحقق كونان
           </h1>
           <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-            الموسم 0
+            {season.label}
           </span>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 md:px-8">
+        {/* Season Explorer */}
+        <div className="mb-6">
+          <h3 className="mb-3 text-lg font-bold text-foreground">المواسم</h3>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {SEASONS.map((s, idx) => (
+              <button
+                key={s.id}
+                onClick={() => selectSeason(idx)}
+                className={`shrink-0 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all hover:scale-105 active:scale-95 ${
+                  idx === currentSeason
+                    ? "border-primary bg-primary/15 text-primary shadow-lg shadow-primary/20"
+                    : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-secondary"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Video Player */}
         <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
           <div className="relative aspect-video w-full bg-black">
             <video
-              key={currentEp}
+              key={`${season.code}-${currentEp}`}
               className="h-full w-full"
               controls
               autoPlay
               onEnded={handleEnded}
-              src={getVideoUrl(currentEp)}
+              src={getVideoUrl(season.code, currentEp)}
             >
               متصفحك لا يدعم الفيديو
             </video>
@@ -81,25 +119,41 @@ const Index = () => {
                 <Heart
                   size={24}
                   className={
-                    favorites.includes(currentEp)
+                    seasonFavs.includes(currentEp)
                       ? "fill-heart-active text-heart-active"
                       : "text-muted-foreground"
                   }
                 />
               </button>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {currentEp} / {TOTAL_EPISODES}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentEp((p) => Math.max(1, p - 1))}
+                disabled={currentEp <= 1}
+                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-30"
+              >
+                <ChevronRight size={20} />
+              </button>
+              <span className="text-sm text-muted-foreground">
+                {currentEp} / {season.episodes}
+              </span>
+              <button
+                onClick={() => setCurrentEp((p) => Math.min(season.episodes, p + 1))}
+                disabled={currentEp >= season.episodes}
+                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-30"
+              >
+                <ChevronLeft size={20} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Episodes Grid */}
         <h3 className="mb-4 text-lg font-bold text-foreground">الحلقات</h3>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9">
-          {Array.from({ length: TOTAL_EPISODES }, (_, i) => i + 1).map((ep) => {
+          {Array.from({ length: season.episodes }, (_, i) => i + 1).map((ep) => {
             const isActive = ep === currentEp;
-            const isFav = favorites.includes(ep);
+            const isFav = seasonFavs.includes(ep);
             return (
               <button
                 key={ep}
