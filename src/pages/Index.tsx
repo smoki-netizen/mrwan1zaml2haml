@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, ChevronLeft, ChevronRight, Maximize, RotateCcw } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Maximize, RotateCcw, Cast } from "lucide-react";
 import { useRef, useCallback } from "react";
 
 const SEASONS = Array.from({ length: 11 }, (_, i) => ({
@@ -49,6 +49,22 @@ const Index = () => {
     const video = videoRef.current;
     if (!video) return;
     if (video.requestFullscreen) video.requestFullscreen();
+  }, []);
+
+  const handleCast = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    try {
+      if ('pictureInPictureEnabled' in document && document.pictureInPictureEnabled) {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else {
+          await video.requestPictureInPicture();
+        }
+      }
+    } catch (e) {
+      console.error("PiP not supported", e);
+    }
   }, []);
 
   const season = SEASONS[currentSeason];
@@ -148,13 +164,22 @@ const Index = () => {
             >
               متصفحك لا يدعم الفيديو
             </video>
-            <button
-              onClick={handleFullscreen}
-              className="absolute top-3 left-3 rounded-lg bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-              title="ملء الشاشة"
-            >
-              <Maximize size={18} />
-            </button>
+            <div className="absolute top-3 left-3 flex gap-2">
+              <button
+                onClick={handleFullscreen}
+                className="rounded-lg bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+                title="ملء الشاشة"
+              >
+                <Maximize size={18} />
+              </button>
+              <button
+                onClick={handleCast}
+                className="rounded-lg bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+                title="نشر الشاشة"
+              >
+                <Cast size={18} />
+              </button>
+            </div>
           </div>
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
