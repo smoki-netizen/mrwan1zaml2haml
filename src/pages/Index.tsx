@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Maximize, RotateCcw } from "lucide-react";
+import { useRef, useCallback } from "react";
 
 const SEASONS = Array.from({ length: 11 }, (_, i) => ({
   id: i,
@@ -41,6 +42,14 @@ const Index = () => {
   const [currentSeason, setCurrentSeason] = useState(0);
   const [currentEp, setCurrentEp] = useState(() => lastWatched["c0"] || 1);
   const [favorites, setFavorites] = useState<Record<string, number[]>>(getFavorites);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleFullscreen = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.requestFullscreen) video.requestFullscreen();
+  }, []);
 
   const season = SEASONS[currentSeason];
   const seasonFavs = favorites[season.code] || [];
@@ -82,16 +91,25 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${isFlipped ? "max-w-md mx-auto" : ""}`} style={isFlipped ? { minHeight: "100vw" } : {}}>
       {/* Header */}
       <header className="border-b border-border px-4 py-4 md:px-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <h1 className="text-xl font-bold text-foreground md:text-2xl">
             🔍 المحقق كونان
           </h1>
-          <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-            {season.label}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsFlipped((f) => !f)}
+              className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              title="قلب العرض والطول"
+            >
+              <RotateCcw size={18} />
+            </button>
+            <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+              {season.label}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -120,6 +138,7 @@ const Index = () => {
         <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
           <div className="relative aspect-video w-full bg-black">
             <video
+              ref={videoRef}
               key={`${season.code}-${currentEp}`}
               className="h-full w-full"
               controls
@@ -129,6 +148,13 @@ const Index = () => {
             >
               متصفحك لا يدعم الفيديو
             </video>
+            <button
+              onClick={handleFullscreen}
+              className="absolute top-3 left-3 rounded-lg bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+              title="ملء الشاشة"
+            >
+              <Maximize size={18} />
+            </button>
           </div>
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
