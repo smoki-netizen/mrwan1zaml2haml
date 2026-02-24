@@ -91,7 +91,7 @@ const Index = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background ${isFlipped ? "max-w-md mx-auto" : ""}`} style={isFlipped ? { minHeight: "100vw" } : {}}>
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-4 md:px-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -136,7 +136,7 @@ const Index = () => {
 
         {/* Video Player */}
         <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
-          <div className="relative aspect-video w-full bg-black">
+          <div className={`relative w-full bg-black ${isFlipped ? "aspect-[9/16]" : "aspect-video"} transition-all duration-300`}>
             <video
               ref={videoRef}
               key={`${season.code}-${currentEp}`}
