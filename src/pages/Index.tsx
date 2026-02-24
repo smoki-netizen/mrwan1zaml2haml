@@ -24,9 +24,22 @@ function saveFavorites(favs: Record<string, number[]>) {
   localStorage.setItem("conan-favorites-v2", JSON.stringify(favs));
 }
 
+function getLastWatched(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem("conan-last-watched") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveLastWatched(data: Record<string, number>) {
+  localStorage.setItem("conan-last-watched", JSON.stringify(data));
+}
+
 const Index = () => {
+  const [lastWatched, setLastWatched] = useState<Record<string, number>>(getLastWatched);
   const [currentSeason, setCurrentSeason] = useState(0);
-  const [currentEp, setCurrentEp] = useState(1);
+  const [currentEp, setCurrentEp] = useState(() => lastWatched["c0"] || 1);
   const [favorites, setFavorites] = useState<Record<string, number[]>>(getFavorites);
 
   const season = SEASONS[currentSeason];
@@ -35,6 +48,15 @@ const Index = () => {
   useEffect(() => {
     saveFavorites(favorites);
   }, [favorites]);
+
+  // حفظ آخر حلقة تمت مشاهدتها
+  useEffect(() => {
+    setLastWatched((prev) => {
+      const updated = { ...prev, [season.code]: currentEp };
+      saveLastWatched(updated);
+      return updated;
+    });
+  }, [currentEp, season.code]);
 
   const toggleFav = (ep: number) => {
     setFavorites((prev) => {
@@ -55,7 +77,8 @@ const Index = () => {
 
   const selectSeason = (idx: number) => {
     setCurrentSeason(idx);
-    setCurrentEp(1);
+    const code = SEASONS[idx].code;
+    setCurrentEp(lastWatched[code] || 1);
   };
 
   return (
