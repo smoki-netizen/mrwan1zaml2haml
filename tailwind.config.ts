@@ -53,6 +53,8 @@ export default {
         heart: "hsl(var(--heart))",
         "heart-active": "hsl(var(--heart-active))",
         gold: "hsl(var(--gold))",
+        "neon-glow": "hsl(var(--neon-glow))",
+        "neon-purple": "hsl(var(--neon-purple))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

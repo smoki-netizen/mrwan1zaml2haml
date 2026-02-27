@@ -6,48 +6,50 @@
 
 @layer base {
   :root {
-    --background: 220 20% 7%;
-    --foreground: 210 20% 92%;
+    --background: 230 15% 5%;
+    --foreground: 220 20% 92%;
 
-    --card: 220 18% 11%;
-    --card-foreground: 210 20% 92%;
+    --card: 230 12% 8%;
+    --card-foreground: 220 20% 92%;
 
-    --popover: 220 18% 11%;
-    --popover-foreground: 210 20% 92%;
+    --popover: 230 12% 8%;
+    --popover-foreground: 220 20% 92%;
 
-    --primary: 210 100% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 230 15% 5%;
 
-    --secondary: 220 16% 16%;
-    --secondary-foreground: 210 20% 85%;
+    --secondary: 230 12% 12%;
+    --secondary-foreground: 220 20% 80%;
 
-    --muted: 220 14% 14%;
-    --muted-foreground: 215 12% 55%;
+    --muted: 230 10% 12%;
+    --muted-foreground: 220 10% 50%;
 
-    --accent: 0 85% 55%;
+    --accent: 280 80% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 14% 18%;
-    --input: 220 14% 18%;
-    --ring: 210 100% 55%;
+    --border: 230 12% 14%;
+    --input: 230 12% 14%;
+    --ring: 195 100% 50%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 220 18% 9%;
-    --sidebar-foreground: 210 20% 92%;
-    --sidebar-primary: 210 100% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 16% 16%;
-    --sidebar-accent-foreground: 210 20% 85%;
-    --sidebar-border: 220 14% 18%;
-    --sidebar-ring: 210 100% 55%;
+    --sidebar-background: 230 12% 6%;
+    --sidebar-foreground: 220 20% 92%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 230 15% 5%;
+    --sidebar-accent: 230 12% 12%;
+    --sidebar-accent-foreground: 220 20% 80%;
+    --sidebar-border: 230 12% 14%;
+    --sidebar-ring: 195 100% 50%;
 
     --heart: 0 85% 55%;
     --heart-active: 0 90% 60%;
     --gold: 45 100% 55%;
+    --neon-glow: 195 100% 50%;
+    --neon-purple: 280 80% 60%;
   }
 }
 
@@ -65,5 +67,32 @@
 @layer utilities {
   .font-cairo {
     font-family: 'Cairo', sans-serif;
+  }
+
+  .glass {
+    background: hsla(230, 12%, 10%, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsla(195, 100%, 50%, 0.1);
+  }
+
+  .glass-strong {
+    background: hsla(230, 12%, 8%, 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid hsla(195, 100%, 50%, 0.15);
+  }
+
+  .neon-border {
+    border: 1px solid hsla(195, 100%, 50%, 0.3);
+    box-shadow: 0 0 15px hsla(195, 100%, 50%, 0.1), inset 0 0 15px hsla(195, 100%, 50%, 0.05);
+  }
+
+  .neon-text {
+    text-shadow: 0 0 10px hsla(195, 100%, 50%, 0.5), 0 0 30px hsla(195, 100%, 50%, 0.2);
+  }
+
+  .cinematic-shadow {
+    box-shadow: 0 20px 60px -15px hsla(0, 0%, 0%, 0.7), 0 0 30px hsla(195, 100%, 50%, 0.08);
   }
 }
