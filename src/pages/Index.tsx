@@ -2,12 +2,18 @@ import { useState, useEffect } from "react";
 import { Heart, ChevronLeft, ChevronRight, Maximize, RotateCcw, Cast } from "lucide-react";
 import { useRef, useCallback } from "react";
 
-const SEASONS = Array.from({ length: 11 }, (_, i) => ({
-  id: i,
-  label: `الموسم ${i}`,
-  code: `c${i}`,
-  episodes: 45,
-}));
+const SEASONS = [
+  { id: 1, label: "الجزء 1", code: "c1", episodes: 40 },
+  { id: 2, label: "الجزء 2", code: "c2", episodes: 44 },
+  { id: 3, label: "الجزء 3", code: "c3", episodes: 52 },
+  { id: 4, label: "الجزء 4", code: "c4", episodes: 52 },
+  { id: 5, label: "الجزء 5", code: "c5", episodes: 52 },
+  { id: 6, label: "الجزء 6", code: "c6", episodes: 52 },
+  { id: 7, label: "الجزء 7", code: "c7", episodes: 52 },
+  { id: 8, label: "الجزء 8", code: "c8", episodes: 52 },
+  { id: 9, label: "الجزء 9", code: "c9", episodes: 54 },
+  { id: 10, label: "الجزء 10", code: "c10", episodes: 45 },
+];
 
 function getVideoUrl(seasonCode: string, episode: number) {
   return `https://ccdko80.com/videos/${seasonCode}/EP${episode}.mp4`;
@@ -40,7 +46,7 @@ function saveLastWatched(data: Record<string, number>) {
 const Index = () => {
   const [lastWatched, setLastWatched] = useState<Record<string, number>>(getLastWatched);
   const [currentSeason, setCurrentSeason] = useState(0);
-  const [currentEp, setCurrentEp] = useState(() => lastWatched["c0"] || 1);
+  const [currentEp, setCurrentEp] = useState(() => lastWatched["c1"] || 1);
   const [favorites, setFavorites] = useState<Record<string, number[]>>(getFavorites);
   const [isFlipped, setIsFlipped] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
