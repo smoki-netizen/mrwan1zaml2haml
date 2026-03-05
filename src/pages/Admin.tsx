@@ -162,6 +162,9 @@ const Admin = () => {
             </section>
           </div>
         )}
+
+        {/* API Settings */}
+        <ApiSettingsSection />
       </main>
     </div>
   );
