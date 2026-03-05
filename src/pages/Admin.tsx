@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers } from "lucide-react";
+import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -162,6 +162,9 @@ const Admin = () => {
             </section>
           </div>
         )}
+
+        {/* API Settings */}
+        <ApiSettingsSection />
       </main>
     </div>
   );
@@ -286,6 +289,76 @@ function DeleteButton({ table, id, onDeleted }: { table: string; id: string; onD
     <button onClick={handleDelete} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
       <Trash2 size={16} />
     </button>
+  );
+}
+
+function ApiSettingsSection() {
+  const [apiKey, setApiKey] = useState("");
+  const [savedKey, setSavedKey] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchKey = async () => {
+      const { data } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "ai_api_key")
+        .maybeSingle();
+      if (data) {
+        setApiKey(data.value);
+        setSavedKey(data.value);
+      }
+      setFetching(false);
+    };
+    fetchKey();
+  }, []);
+
+  const handleSave = async () => {
+    setLoading(true);
+    const { error } = await supabase
+      .from("settings" as any)
+      .upsert({ key: "ai_api_key", value: apiKey, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
+    if (error) {
+      toast({ title: "خطأ", description: error.message, variant: "destructive" });
+    } else {
+      setSavedKey(apiKey);
+      toast({ title: "تم الحفظ", description: "تم حفظ مفتاح API بنجاح" });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="mt-8 glass-strong rounded-2xl neon-border p-6">
+      <h3 className="text-lg font-bold text-foreground neon-text flex items-center gap-2 mb-4">
+        <Key size={18} className="text-primary" /> إعدادات API
+      </h3>
+      {fetching ? (
+        <div className="h-10 glass rounded-xl animate-pulse" />
+      ) : (
+        <div className="flex gap-3 items-end">
+          <div className="flex-1 space-y-2">
+            <label className="text-sm text-muted-foreground">مفتاح AI API</label>
+            <Input
+              type="password"
+              placeholder="sk-..."
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="glass border-border/50"
+              dir="ltr"
+            />
+          </div>
+          <Button
+            onClick={handleSave}
+            disabled={loading || apiKey === savedKey}
+            className="gap-2"
+          >
+            <Save size={16} /> {loading ? "جاري الحفظ..." : "حفظ"}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 
