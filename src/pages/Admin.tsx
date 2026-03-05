@@ -165,6 +165,9 @@ const Admin = () => {
 
         {/* API Settings */}
         <ApiSettingsSection />
+
+        {/* AI Admin Assistant */}
+        <AiAdminSection onChanged={() => { fetchAnime(); if (selectedAnime) fetchDetails(selectedAnime); }} />
       </main>
     </div>
   );
@@ -392,6 +395,71 @@ function ApiSettingsSection() {
           >
             <Save size={16} /> {loading ? "جاري الحفظ..." : "حفظ"}
           </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AiAdminSection({ onChanged }: { onChanged: () => void }) {
+  const [prompt, setPrompt] = useState("");
+  const [reply, setReply] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const runPrompt = async () => {
+    if (!prompt.trim() || loading) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-ai", {
+        body: { prompt: prompt.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setReply(data?.reply || "تم تنفيذ الطلب");
+      setResults(data?.results || []);
+      onChanged();
+      toast({ title: "تم", description: "نفّذ الذكاء الاصطناعي الطلب" });
+    } catch (e: any) {
+      toast({ title: "خطأ", description: e.message || "فشل تنفيذ الطلب", variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="mt-8 glass-strong rounded-2xl neon-border p-6 space-y-4">
+      <h3 className="text-lg font-bold text-foreground neon-text">وكيل AI للإدارة</h3>
+      <p className="text-sm text-muted-foreground">
+        اكتب طلبك باللغة الطبيعية مثل: "أضف أنمي جديد" أو "احذف السيرفر الفلاني" أو "اعرض آخر الأنميات".
+      </p>
+
+      <Textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="مثال: أضف أنمي اسمه Attack on Titan مع وصف قصير"
+        className="glass border-border/50"
+      />
+      <Button onClick={runPrompt} disabled={loading || !prompt.trim()} className="gap-2">
+        <Sparkles size={16} className={loading ? "animate-spin" : ""} />
+        {loading ? "جاري التنفيذ..." : "تنفيذ بواسطة AI"}
+      </Button>
+
+      {reply && (
+        <div className="glass rounded-xl p-4">
+          <p className="text-sm text-foreground whitespace-pre-wrap">{reply}</p>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-bold text-foreground">نتائج العمليات</h4>
+          {results.map((r, i) => (
+            <div key={i} className="glass rounded-xl p-3 text-xs text-muted-foreground" dir="ltr">
+              {JSON.stringify(r, null, 2)}
+            </div>
+          ))}
         </div>
       )}
     </div>
