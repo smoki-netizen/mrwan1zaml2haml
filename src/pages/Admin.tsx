@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers } from "lucide-react";
+import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
