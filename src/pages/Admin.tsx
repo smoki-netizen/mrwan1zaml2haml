@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save } from "lucide-react";
+import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,7 +178,27 @@ function AddAnimeDialog({ onAdded }: { onAdded: () => void }) {
   const [description, setDescription] = useState("");
   const [posterUrl, setPosterUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
+
+  const handleGenerateDescription = async () => {
+    if (!title.trim()) {
+      toast({ title: "تنبيه", description: "أدخل اسم الأنمي أولاً", variant: "destructive" });
+      return;
+    }
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-description", {
+        body: { title: title.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.description) setDescription(data.description);
+    } catch (e: any) {
+      toast({ title: "خطأ", description: e.message || "فشل توليد الوصف", variant: "destructive" });
+    }
+    setGenerating(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,7 +218,23 @@ function AddAnimeDialog({ onAdded }: { onAdded: () => void }) {
         <DialogHeader><DialogTitle className="text-foreground">إضافة أنمي جديد</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input placeholder="اسم الأنمي" value={title} onChange={(e) => setTitle(e.target.value)} required className="glass border-border/50" />
-          <Textarea placeholder="الوصف" value={description} onChange={(e) => setDescription(e.target.value)} className="glass border-border/50" />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm text-muted-foreground">الوصف</label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleGenerateDescription}
+                disabled={generating || !title.trim()}
+                className="gap-1.5 text-xs h-7"
+              >
+                <Sparkles size={14} className={generating ? "animate-spin" : ""} />
+                {generating ? "جاري التوليد..." : "توليد بالذكاء الاصطناعي"}
+              </Button>
+            </div>
+            <Textarea placeholder="الوصف" value={description} onChange={(e) => setDescription(e.target.value)} className="glass border-border/50" />
+          </div>
           <Input placeholder="رابط البوستر" value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} className="glass border-border/50" dir="ltr" />
           <Button type="submit" disabled={loading} className="w-full">{loading ? "جاري الإضافة..." : "إضافة"}</Button>
         </form>
