@@ -66,7 +66,7 @@ serve(async (req) => {
       method: "POST",
       headers: { "Authorization": `Bearer ${aiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-1.5-flash", // استخدام نسخة مستقرة وسريعة
+        model: "google/gemini-3-flash-preview",
         messages: [
           {
             role: "system",
