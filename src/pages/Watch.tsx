@@ -69,7 +69,7 @@ const Watch = () => {
 
   const getVideoUrl = () => {
     if (!currentServer || !season) return "";
-    return `${currentServer.base_url}/EP${currentEp}.mp4`;
+    return `${currentServer.base_url}/c${season.season_number}/EP${currentEp}.mp4`;
   };
 
   const seasonKey = season?.id || "";
