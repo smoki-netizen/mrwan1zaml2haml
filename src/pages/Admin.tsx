@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles } from "lucide-react";
+import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles, Code, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -161,6 +161,16 @@ const Admin = () => {
               )}
             </section>
           </div>
+        )}
+
+        {/* JSON Editor */}
+        {selectedAnime && (
+          <JsonEditorSection
+            anime={selectedAnime}
+            seasons={seasons}
+            servers={servers}
+            onSaved={() => { fetchAnime(); fetchDetails(selectedAnime); }}
+          />
         )}
 
         {/* API Settings */}
@@ -462,6 +472,153 @@ function AiAdminSection({ onChanged }: { onChanged: () => void }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function JsonEditorSection({
+  anime,
+  seasons,
+  servers,
+  onSaved,
+}: {
+  anime: Anime;
+  seasons: Season[];
+  servers: ServerType[];
+  onSaved: () => void;
+}) {
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [jsonError, setJsonError] = useState("");
+
+  const buildJson = useCallback(() => {
+    return JSON.stringify(
+      {
+        anime: {
+          id: anime.id,
+          title: anime.title,
+          description: anime.description,
+          poster_url: anime.poster_url,
+        },
+        seasons: seasons.map((s) => ({
+          id: s.id,
+          season_number: s.season_number,
+          label: s.label,
+          episodes_count: s.episodes_count,
+        })),
+        servers: servers.map((s) => ({
+          id: s.id,
+          name: s.name,
+          base_url: s.base_url,
+        })),
+      },
+      null,
+      2
+    );
+  }, [anime, seasons, servers]);
+
+  const [jsonText, setJsonText] = useState(buildJson());
+
+  useEffect(() => {
+    setJsonText(buildJson());
+    setJsonError("");
+  }, [buildJson]);
+
+  const handleChange = (val: string) => {
+    setJsonText(val);
+    try {
+      JSON.parse(val);
+      setJsonError("");
+    } catch {
+      setJsonError("JSON غير صالح");
+    }
+  };
+
+  const handleSave = async () => {
+    let parsed: any;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch {
+      setJsonError("JSON غير صالح");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Update anime
+      if (parsed.anime) {
+        const { id, ...rest } = parsed.anime;
+        await supabase.from("anime").update(rest as any).eq("id", anime.id);
+      }
+
+      // Update seasons
+      if (parsed.seasons) {
+        for (const s of parsed.seasons) {
+          if (s.id) {
+            const { id, ...rest } = s;
+            await supabase.from("seasons").update({ ...rest, anime_id: anime.id } as any).eq("id", id);
+          } else {
+            await supabase.from("seasons").insert({ ...s, anime_id: anime.id } as any);
+          }
+        }
+      }
+
+      // Update servers
+      if (parsed.servers) {
+        for (const s of parsed.servers) {
+          if (s.id) {
+            const { id, ...rest } = s;
+            await supabase.from("servers").update({ ...rest, anime_id: anime.id } as any).eq("id", id);
+          } else {
+            await supabase.from("servers").insert({ ...s, anime_id: anime.id } as any);
+          }
+        }
+      }
+
+      toast({ title: "تم الحفظ", description: "تم تحديث البيانات من JSON بنجاح" });
+      onSaved();
+    } catch (e: any) {
+      toast({ title: "خطأ", description: e.message || "فشل الحفظ", variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
+  const handleReset = () => {
+    setJsonText(buildJson());
+    setJsonError("");
+  };
+
+  return (
+    <div className="mt-8 glass-strong rounded-2xl neon-border p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-foreground neon-text flex items-center gap-2">
+          <Code size={18} className="text-primary" /> محرر JSON
+        </h3>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={handleReset} className="gap-1.5">
+            <X size={14} /> إعادة تعيين
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={saving || !!jsonError} className="gap-1.5">
+            <Check size={14} /> {saving ? "جاري الحفظ..." : "حفظ التعديلات"}
+          </Button>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        عدّل بيانات الأنمي والمواسم والسيرفرات مباشرة. لإضافة موسم/سيرفر جديد أزل حقل "id".
+      </p>
+
+      {jsonError && (
+        <div className="text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2">{jsonError}</div>
+      )}
+
+      <textarea
+        value={jsonText}
+        onChange={(e) => handleChange(e.target.value)}
+        className="w-full min-h-[400px] bg-secondary/30 border border-border/50 rounded-xl p-4 font-mono text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
+        dir="ltr"
+        spellCheck={false}
+      />
     </div>
   );
 }
