@@ -163,6 +163,16 @@ const Admin = () => {
           </div>
         )}
 
+        {/* JSON Editor */}
+        {selectedAnime && (
+          <JsonEditorSection
+            anime={selectedAnime}
+            seasons={seasons}
+            servers={servers}
+            onSaved={() => { fetchAnime(); fetchDetails(selectedAnime); }}
+          />
+        )}
+
         {/* API Settings */}
         <ApiSettingsSection />
 
