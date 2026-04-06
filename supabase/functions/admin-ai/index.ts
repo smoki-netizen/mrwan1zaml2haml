@@ -33,7 +33,7 @@ serve(async (req) => {
     const { data: roles } = await userClient.from("user_roles").select("role").eq("user_id", user.id).single();
     if (roles?.role !== "admin") throw new Error("Admin access required");
 
-    const { prompt } = await req.json();
+    const { prompt, history } = await req.json();
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     // Fetch context
@@ -91,8 +91,14 @@ serve(async (req) => {
 - يمكنك تنفيذ عمليات متعددة في نفس الرد.
 - رابط الفيديو يكون بصيغة: base_url/c{season_number}/EP{episode}.mp4
 - لديك صلاحية كاملة لتغيير أي شيء في الموقع وقاعدة البيانات.
-- عند تغيير الألوان، استخدم صيغة HSL فقط (مثل "195 100% 50%").`
+- عند تغيير الألوان، استخدم صيغة HSL فقط (مثل "195 100% 50%").
+- إذا طلب المستخدم شيئاً غير واضح، اسأل في الـ reply واترك actions فارغة.
+- إذا طلب معلومات فقط (مثل "كم أنمي عندي؟")، أجب من البيانات المتاحة بدون actions.`
           },
+          // Include conversation history for context
+          ...((history || []) as Array<{role: string; content: string}>)
+            .slice(-10) // Keep last 10 messages for context
+            .map((m: {role: string; content: string}) => ({ role: m.role, content: m.content })),
           { role: "user", content: `الطلب: ${prompt}\nالبيانات: ${JSON.stringify(snapshot)}` }
         ],
         response_format: { type: "json_object" }
