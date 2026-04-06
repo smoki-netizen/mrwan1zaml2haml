@@ -177,8 +177,8 @@ const Admin = () => {
         {/* API Settings */}
         <ApiSettingsSection />
 
-        {/* AI Admin Assistant */}
-        <AiAdminSection onChanged={() => { fetchAnime(); if (selectedAnime) fetchDetails(selectedAnime); }} />
+        {/* AI Admin Chat */}
+        <AdminAiChat onChanged={() => { fetchAnime(); if (selectedAnime) fetchDetails(selectedAnime); }} />
       </main>
     </div>
   );
