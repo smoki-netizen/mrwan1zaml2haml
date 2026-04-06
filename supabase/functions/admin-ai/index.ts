@@ -33,7 +33,7 @@ serve(async (req) => {
     const { data: roles } = await userClient.from("user_roles").select("role").eq("user_id", user.id).single();
     if (roles?.role !== "admin") throw new Error("Admin access required");
 
-    const { prompt } = await req.json();
+    const { prompt, history } = await req.json();
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     // Fetch context
