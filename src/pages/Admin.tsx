@@ -345,8 +345,45 @@ function DeleteButton({ table, id, onDeleted }: { table: string; id: string; onD
   );
 }
 
+function DetectEpisodesButton({ seasonId, onDone }: { seasonId: string; onDone: () => void }) {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  const handleDetect = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("detect-episodes", {
+        body: { season_id: seasonId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.detected > 0) {
+        toast({ title: "تم الاكتشاف", description: `تم اكتشاف ${data.detected} حلقة عبر ${data.server_name}` });
+      } else {
+        toast({ title: "لا توجد حلقات", description: "لم يتم العثور على أي حلقة. تأكد من رابط السيرفر.", variant: "destructive" });
+      }
+      onDone();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "فشل الفحص";
+      toast({ title: "خطأ", description: msg, variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <button
+      onClick={handleDetect}
+      disabled={loading}
+      title="اكتشف عدد الحلقات تلقائياً"
+      className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-50"
+    >
+      <Search size={16} className={loading ? "animate-spin" : ""} />
+    </button>
+  );
+}
+
 function ApiSettingsSection() {
-  const [apiKey, setApiKey] = useState("");
   const [savedKey, setSavedKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
