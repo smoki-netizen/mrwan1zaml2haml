@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Film, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/use-site-settings";
@@ -19,8 +20,19 @@ const Home = () => {
     fetchAnime();
   }, []);
 
+  const pageTitle = `${settings.site_title} - شاهد أفضل الأنميات مدبلجة بالعربية`;
+  const pageDesc = settings.site_description || "شاهد جميع حلقات الأنميات مدبلجة بالعربية بجودة عالية مع سيرفرات متعددة.";
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href="https://mrwan1zaml2haml.lovable.app/" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content="https://mrwan1zaml2haml.lovable.app/" />
+      </Helmet>
       {/* Background ambient glow */}
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/5 blur-[120px]" />
@@ -46,7 +58,7 @@ const Home = () => {
               <Film size={20} className="text-primary" />
             </div>
             <h1 className="text-xl font-bold text-foreground neon-text md:text-2xl">
-              {settings.site_title}
+              {settings.site_title} — شاهد أفضل الأنميات
             </h1>
           </div>
           <Link
