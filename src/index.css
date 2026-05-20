@@ -6,58 +6,57 @@
 
 @layer base {
   :root {
-    --background: 230 15% 5%;
-    --foreground: 220 20% 92%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
 
-    --card: 230 12% 8%;
-    --card-foreground: 220 20% 92%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 230 12% 8%;
-    --popover-foreground: 220 20% 92%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 230 15% 5%;
+    --primary: 18 90% 54%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 230 12% 12%;
-    --secondary-foreground: 220 20% 80%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 230 10% 12%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 280 80% 60%;
+    --accent: 18 90% 54%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 230 12% 14%;
-    --input: 230 12% 14%;
-    --ring: 195 100% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 16%;
+    --ring: 18 90% 54%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 230 12% 6%;
-    --sidebar-foreground: 220 20% 92%;
-    --sidebar-primary: 195 100% 50%;
-    --sidebar-primary-foreground: 230 15% 5%;
-    --sidebar-accent: 230 12% 12%;
-    --sidebar-accent-foreground: 220 20% 80%;
-    --sidebar-border: 230 12% 14%;
-    --sidebar-ring: 195 100% 50%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 18 90% 54%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 18 90% 54%;
 
     --heart: 0 85% 55%;
-    --heart-active: 0 90% 60%;
+    --heart-active: 18 90% 54%;
     --gold: 45 100% 55%;
-    --neon-glow: 195 100% 50%;
-    --neon-purple: 280 80% 60%;
+    --neon-glow: 18 90% 54%;
+    --neon-purple: 18 90% 54%;
+
+    --shadow-glow: 0 8px 32px -8px hsla(18, 90%, 54%, 0.45);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground font-cairo;
     direction: rtl;
@@ -65,34 +64,65 @@
 }
 
 @layer utilities {
-  .font-cairo {
-    font-family: 'Cairo', sans-serif;
-  }
+  .font-cairo { font-family: 'Cairo', sans-serif; }
 
   .glass {
-    background: hsla(230, 12%, 10%, 0.6);
+    background: hsla(0, 0%, 10%, 0.7);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsla(195, 100%, 50%, 0.1);
+    border: 1px solid hsla(0, 0%, 100%, 0.06);
   }
 
   .glass-strong {
-    background: hsla(230, 12%, 8%, 0.8);
+    background: hsla(0, 0%, 7%, 0.92);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsla(195, 100%, 50%, 0.15);
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.06);
   }
 
   .neon-border {
-    border: 1px solid hsla(195, 100%, 50%, 0.3);
-    box-shadow: 0 0 15px hsla(195, 100%, 50%, 0.1), inset 0 0 15px hsla(195, 100%, 50%, 0.05);
+    border: 1px solid hsla(18, 90%, 54%, 0.4);
+    box-shadow: 0 0 0 1px hsla(18, 90%, 54%, 0.08);
   }
 
   .neon-text {
-    text-shadow: 0 0 10px hsla(195, 100%, 50%, 0.5), 0 0 30px hsla(195, 100%, 50%, 0.2);
+    text-shadow: 0 0 24px hsla(18, 90%, 54%, 0.35);
   }
 
   .cinematic-shadow {
-    box-shadow: 0 20px 60px -15px hsla(0, 0%, 0%, 0.7), 0 0 30px hsla(195, 100%, 50%, 0.08);
+    box-shadow: 0 20px 60px -15px hsla(0, 0%, 0%, 0.8), var(--shadow-glow);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .card-tilt {
+    transition: transform 350ms cubic-bezier(.2,.8,.2,1), box-shadow 350ms;
+  }
+  .card-tilt:hover {
+    transform: translateY(-6px) scale(1.06);
+    box-shadow: 0 18px 40px -10px hsla(18, 90%, 54%, 0.5);
+    z-index: 20;
+  }
+
+  .hero-gradient {
+    background: linear-gradient(180deg,
+      hsla(0,0%,7%,0) 0%,
+      hsla(0,0%,7%,0.3) 40%,
+      hsla(0,0%,7%,0.85) 80%,
+      hsl(0 0% 7%) 100%);
+  }
+
+  .hero-gradient-side {
+    background: linear-gradient(270deg,
+      hsla(0,0%,7%,0) 30%,
+      hsla(0,0%,7%,0.6) 70%,
+      hsl(0 0% 7%) 100%);
   }
 }
+
+@keyframes hero-pan {
+  0% { transform: scale(1.05) translateX(0); }
+  100% { transform: scale(1.12) translateX(-2%); }
+}
+.animate-hero-pan { animation: hero-pan 16s ease-out infinite alternate; }

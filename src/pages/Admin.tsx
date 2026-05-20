@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles, Code, Check, X } from "lucide-react";
+import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles, Code, Check, X, Search } from "lucide-react";
 import { AdminAiChat } from "@/components/AdminAiChat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -130,7 +130,10 @@ const Admin = () => {
                       <span className="text-foreground text-sm">
                         {s.label} — {s.episodes_count} حلقة
                       </span>
-                      <DeleteButton table="seasons" id={s.id} onDeleted={() => fetchDetails(selectedAnime)} />
+                      <div className="flex items-center gap-1">
+                        <DetectEpisodesButton seasonId={s.id} onDone={() => fetchDetails(selectedAnime)} />
+                        <DeleteButton table="seasons" id={s.id} onDeleted={() => fetchDetails(selectedAnime)} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -338,6 +341,44 @@ function DeleteButton({ table, id, onDeleted }: { table: string; id: string; onD
   return (
     <button onClick={handleDelete} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
       <Trash2 size={16} />
+    </button>
+  );
+}
+
+function DetectEpisodesButton({ seasonId, onDone }: { seasonId: string; onDone: () => void }) {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  const handleDetect = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("detect-episodes", {
+        body: { season_id: seasonId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.detected > 0) {
+        toast({ title: "تم الاكتشاف", description: `تم اكتشاف ${data.detected} حلقة عبر ${data.server_name}` });
+      } else {
+        toast({ title: "لا توجد حلقات", description: "لم يتم العثور على أي حلقة. تأكد من رابط السيرفر.", variant: "destructive" });
+      }
+      onDone();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "فشل الفحص";
+      toast({ title: "خطأ", description: msg, variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <button
+      onClick={handleDetect}
+      disabled={loading}
+      title="اكتشف عدد الحلقات تلقائياً"
+      className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-50"
+    >
+      <Search size={16} className={loading ? "animate-spin" : ""} />
     </button>
   );
 }
