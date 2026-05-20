@@ -156,6 +156,14 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col h-screen bg-background" dir="rtl">
+      <Helmet>
+        <title>شات AI للأنمي - اسأل مساعد الذكاء الاصطناعي</title>
+        <meta name="description" content="تحدث مع مساعد ذكاء اصطناعي متخصص في عالم الأنمي والمانغا، واحصل على توصيات وملخصات وإجابات فورية بالعربية." />
+        <link rel="canonical" href="https://mrwan1zaml2haml.lovable.app/chat" />
+        <meta property="og:title" content="شات AI للأنمي - اسأل مساعد الذكاء الاصطناعي" />
+        <meta property="og:description" content="تحدث مع مساعد ذكاء اصطناعي متخصص في عالم الأنمي والمانغا بالعربية." />
+        <meta property="og:url" content="https://mrwan1zaml2haml.lovable.app/chat" />
+      </Helmet>
       {/* Header */}
       <header className="glass-strong sticky top-0 z-50 px-4 py-3 border-b border-border/30">
         <div className="mx-auto max-w-3xl flex items-center justify-between">
@@ -239,12 +247,15 @@ const Chat = () => {
       {/* Input */}
       <div className="glass-strong border-t border-border/30 px-4 py-3">
         <div className="mx-auto max-w-3xl flex gap-2 items-end">
+          <label htmlFor="chat-input" className="sr-only">رسالتك إلى مساعد الذكاء الاصطناعي</label>
           <textarea
+            id="chat-input"
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="اكتب رسالتك..."
+            aria-label="رسالتك إلى مساعد الذكاء الاصطناعي"
             rows={1}
             className="flex-1 resize-none rounded-xl glass border border-border/50 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring bg-transparent"
             style={{ maxHeight: 120 }}
@@ -258,6 +269,7 @@ const Chat = () => {
             onClick={() => send(input)}
             disabled={!input.trim() || isLoading}
             size="icon"
+            aria-label="إرسال الرسالة"
             className="h-11 w-11 rounded-xl shrink-0"
           >
             <Send size={18} />
