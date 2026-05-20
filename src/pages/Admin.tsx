@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles, Code, Check, X } from "lucide-react";
+import { Film, Plus, Trash2, Edit2, LogOut, Server, Layers, Key, Save, Sparkles, Code, Check, X, Search } from "lucide-react";
 import { AdminAiChat } from "@/components/AdminAiChat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -130,7 +130,10 @@ const Admin = () => {
                       <span className="text-foreground text-sm">
                         {s.label} — {s.episodes_count} حلقة
                       </span>
-                      <DeleteButton table="seasons" id={s.id} onDeleted={() => fetchDetails(selectedAnime)} />
+                      <div className="flex items-center gap-1">
+                        <DetectEpisodesButton seasonId={s.id} onDone={() => fetchDetails(selectedAnime)} />
+                        <DeleteButton table="seasons" id={s.id} onDeleted={() => fetchDetails(selectedAnime)} />
+                      </div>
                     </div>
                   ))}
                 </div>
