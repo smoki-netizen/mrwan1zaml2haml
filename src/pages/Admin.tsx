@@ -384,6 +384,7 @@ function DetectEpisodesButton({ seasonId, onDone }: { seasonId: string; onDone: 
 }
 
 function ApiSettingsSection() {
+  const [apiKey, setApiKey] = useState("");
   const [savedKey, setSavedKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
