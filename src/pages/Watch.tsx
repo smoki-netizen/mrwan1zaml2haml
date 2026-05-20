@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Heart, ChevronLeft, ChevronRight, Maximize, Cast, Play, Film, ArrowRight, Server } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Anime, Season, Server as ServerType } from "@/types/anime";
@@ -134,6 +135,24 @@ const Watch = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <Helmet>
+        <title>{`مشاهدة ${anime.title} مدبلج أونلاين`}</title>
+        <meta name="description" content={(anime.description || `شاهد جميع حلقات ${anime.title} مدبلجة بالعربية بجودة عالية مع سيرفرات متعددة.`).slice(0, 160)} />
+        <link rel="canonical" href={`https://mrwan1zaml2haml.lovable.app/watch/${anime.id}`} />
+        <meta property="og:title" content={`مشاهدة ${anime.title} مدبلج أونلاين`} />
+        <meta property="og:description" content={(anime.description || `شاهد جميع حلقات ${anime.title} مدبلجة بالعربية.`).slice(0, 160)} />
+        <meta property="og:url" content={`https://mrwan1zaml2haml.lovable.app/watch/${anime.id}`} />
+        <meta property="og:type" content="video.tv_show" />
+        {anime.poster_url && <meta property="og:image" content={anime.poster_url} />}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "TVSeries",
+          name: anime.title,
+          description: anime.description || `شاهد ${anime.title} مدبلج بالعربية.`,
+          image: anime.poster_url || undefined,
+          inLanguage: "ar",
+        })}</script>
+      </Helmet>
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/5 blur-[120px]" />
       </div>
@@ -141,7 +160,7 @@ const Watch = () => {
       <header className="glass-strong sticky top-0 z-50 px-4 py-4 md:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" className="glass rounded-xl p-2 text-muted-foreground hover:text-primary hover:neon-border transition-all">
+            <Link to="/" aria-label="العودة إلى الصفحة الرئيسية" className="glass rounded-xl p-2 text-muted-foreground hover:text-primary hover:neon-border transition-all">
               <ArrowRight size={18} />
             </Link>
             <h1 className="text-xl font-bold text-foreground neon-text md:text-2xl">{anime.title}</h1>
@@ -158,10 +177,10 @@ const Watch = () => {
         {/* Server selector */}
         {servers.length > 1 && (
           <div className="mb-6">
-            <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
               <Server size={18} className="text-primary" />
               السيرفرات
-            </h3>
+            </h2>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {servers.map((s) => (
                 <button
@@ -183,10 +202,10 @@ const Watch = () => {
         {/* Seasons */}
         {seasons.length > 0 && (
           <div className="mb-8">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
               <Play size={18} className="text-primary" />
               المواسم
-            </h3>
+            </h2>
             <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
               {seasons.map((s, idx) => (
                 <button
@@ -222,10 +241,10 @@ const Watch = () => {
                   متصفحك لا يدعم الفيديو
                 </video>
                 <div className="absolute top-4 left-4 flex gap-2">
-                  <button onClick={handleFullscreen} className="glass rounded-xl p-2.5 text-foreground/70 hover:text-primary hover:neon-border transition-all" title="ملء الشاشة">
+                  <button onClick={handleFullscreen} aria-label="عرض ملء الشاشة" className="glass rounded-xl p-2.5 text-foreground/70 hover:text-primary hover:neon-border transition-all" title="ملء الشاشة">
                     <Maximize size={18} />
                   </button>
-                  <button onClick={handleCast} className="glass rounded-xl p-2.5 text-foreground/70 hover:text-primary hover:neon-border transition-all" title="صورة في صورة">
+                  <button onClick={handleCast} aria-label="تشغيل في وضع صورة داخل صورة" className="glass rounded-xl p-2.5 text-foreground/70 hover:text-primary hover:neon-border transition-all" title="صورة في صورة">
                     <Cast size={18} />
                   </button>
                 </div>
@@ -233,7 +252,7 @@ const Watch = () => {
               <div className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-4">
                   <h2 className="text-lg font-bold text-foreground">الحلقة {currentEp}</h2>
-                  <button onClick={() => toggleFav(currentEp)} className="transition-all duration-300 hover:scale-125 active:scale-95">
+                  <button onClick={() => toggleFav(currentEp)} aria-label={seasonFavs.includes(currentEp) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"} className="transition-all duration-300 hover:scale-125 active:scale-95">
                     <Heart
                       size={24}
                       className={seasonFavs.includes(currentEp)
@@ -244,13 +263,13 @@ const Watch = () => {
                   </button>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setCurrentEp((p) => Math.max(1, p - 1))} disabled={currentEp <= 1} className="glass rounded-xl p-2 text-muted-foreground hover:text-primary hover:neon-border disabled:opacity-20 transition-all">
+                  <button onClick={() => setCurrentEp((p) => Math.max(1, p - 1))} disabled={currentEp <= 1} aria-label="الحلقة السابقة" className="glass rounded-xl p-2 text-muted-foreground hover:text-primary hover:neon-border disabled:opacity-20 transition-all">
                     <ChevronRight size={20} />
                   </button>
                   <span className="glass rounded-lg px-3 py-1 text-sm font-semibold text-primary tabular-nums">
                     {currentEp} / {season.episodes_count}
                   </span>
-                  <button onClick={() => setCurrentEp((p) => Math.min(season.episodes_count, p + 1))} disabled={currentEp >= season.episodes_count} className="glass rounded-xl p-2 text-muted-foreground hover:text-primary hover:neon-border disabled:opacity-20 transition-all">
+                  <button onClick={() => setCurrentEp((p) => Math.min(season.episodes_count, p + 1))} disabled={currentEp >= season.episodes_count} aria-label="الحلقة التالية" className="glass rounded-xl p-2 text-muted-foreground hover:text-primary hover:neon-border disabled:opacity-20 transition-all">
                     <ChevronLeft size={20} />
                   </button>
                 </div>
@@ -258,10 +277,10 @@ const Watch = () => {
             </div>
 
             {/* Episodes Grid */}
-            <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-foreground">
+            <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-foreground">
               <Film size={18} className="text-primary" />
               الحلقات
-            </h3>
+            </h2>
             <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
               {Array.from({ length: season.episodes_count }, (_, i) => i + 1).map((ep) => {
                 const isActive = ep === currentEp;
