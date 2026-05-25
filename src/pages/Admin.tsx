@@ -431,7 +431,7 @@ function DetectAllSeasonsButton({ seasons, onDone }: { seasons: { id: string; la
   );
 }
 
-
+function ApiSettingsSection() {
   const [apiKey, setApiKey] = useState("");
   const [savedKey, setSavedKey] = useState("");
   const [loading, setLoading] = useState(false);
