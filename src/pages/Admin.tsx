@@ -119,7 +119,10 @@ const Admin = () => {
                 <h4 className="font-bold text-foreground flex items-center gap-2">
                   <Layers size={16} className="text-primary" /> المواسم
                 </h4>
-                <AddSeasonDialog animeId={selectedAnime.id} onAdded={() => fetchDetails(selectedAnime)} />
+                <div className="flex items-center gap-2">
+                  <DetectAllSeasonsButton seasons={seasons} onDone={() => fetchDetails(selectedAnime)} />
+                  <AddSeasonDialog animeId={selectedAnime.id} onAdded={() => fetchDetails(selectedAnime)} />
+                </div>
               </div>
               {seasons.length === 0 ? (
                 <p className="text-muted-foreground text-sm">لا توجد مواسم</p>
