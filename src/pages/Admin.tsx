@@ -119,7 +119,10 @@ const Admin = () => {
                 <h4 className="font-bold text-foreground flex items-center gap-2">
                   <Layers size={16} className="text-primary" /> المواسم
                 </h4>
-                <AddSeasonDialog animeId={selectedAnime.id} onAdded={() => fetchDetails(selectedAnime)} />
+                <div className="flex items-center gap-2">
+                  <DetectAllSeasonsButton seasons={seasons} onDone={() => fetchDetails(selectedAnime)} />
+                  <AddSeasonDialog animeId={selectedAnime.id} onAdded={() => fetchDetails(selectedAnime)} />
+                </div>
               </div>
               {seasons.length === 0 ? (
                 <p className="text-muted-foreground text-sm">لا توجد مواسم</p>
@@ -379,6 +382,51 @@ function DetectEpisodesButton({ seasonId, onDone }: { seasonId: string; onDone: 
       className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-50"
     >
       <Search size={16} className={loading ? "animate-spin" : ""} />
+    </button>
+  );
+}
+
+function DetectAllSeasonsButton({ seasons, onDone }: { seasons: { id: string; label: string }[]; onDone: () => void }) {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleDetectAll = async () => {
+    if (seasons.length === 0) return;
+    if (!confirm(`فحص ${seasons.length} موسم؟ قد يستغرق دقائق.`)) return;
+    setLoading(true);
+    setProgress(0);
+    let success = 0;
+    let failed = 0;
+    for (let i = 0; i < seasons.length; i++) {
+      const s = seasons[i];
+      try {
+        const { data, error } = await supabase.functions.invoke("detect-episodes", {
+          body: { season_id: s.id },
+        });
+        if (error || data?.error) throw new Error(error?.message || data?.error);
+        if (data?.detected > 0) success++; else failed++;
+      } catch {
+        failed++;
+      }
+      setProgress(i + 1);
+    }
+    toast({ title: "اكتمل الفحص", description: `نجح ${success} - فشل ${failed}` });
+    setLoading(false);
+    setProgress(0);
+    onDone();
+  };
+
+  if (seasons.length === 0) return null;
+  return (
+    <button
+      onClick={handleDetectAll}
+      disabled={loading}
+      title="فحص كل المواسم تلقائياً"
+      className="px-3 py-2 rounded-lg text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 transition-all disabled:opacity-50 flex items-center gap-1"
+    >
+      <Search size={14} className={loading ? "animate-spin" : ""} />
+      {loading ? `${progress}/${seasons.length}` : "فحص الكل"}
     </button>
   );
 }
